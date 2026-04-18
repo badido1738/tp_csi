@@ -1,17 +1,14 @@
 package fr.univ.uppa.reservation;
 
-/**
- * Minimal "API-like" result for TP1.
- * Students assert on error codes in tests (Given/When/Then).
- */
-public record Result<T>(T value, ErrorCode error) {
+// Évolution du TP1 : ajout d'un message pour faciliter l'affichage CLI
+public record Result<T>(T value, ErrorCode error, String message) {
 
-    public static <T> Result<T> ok(T v) {
-        return new Result<>(v, ErrorCode.NONE);
+    public static <T> Result<T> ok(T v, String msg) {
+        return new Result<>(v, ErrorCode.NONE, msg);
     }
 
-    public static <T> Result<T> fail(ErrorCode e) {
-        return new Result<>(null, e);
+    public static <T> Result<T> fail(ErrorCode e, String msg) {
+        return new Result<>(null, e, msg);
     }
 
     public boolean isOk() {
