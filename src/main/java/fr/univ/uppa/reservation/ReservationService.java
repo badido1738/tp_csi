@@ -3,8 +3,9 @@ package fr.univ.uppa.reservation;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-// Gère la logique métier des réservations et valide les règles
+// Service enrichi avec les recherches et le rechargement d'état
 public final class ReservationService {
 
     private final List<Resource> resources = new ArrayList<>();
@@ -29,7 +30,6 @@ public final class ReservationService {
         if (!resourceExists(resourceId)) return Result.fail(ErrorCode.RESOURCE_NOT_FOUND, "id=" + resourceId);
 
         for (Reservation r : reservations) {
-            // On ignore les réservations annulées lors de la détection de conflit
             if (r.resourceId() == resourceId && r.status() != Status.CANCELLED) {
                 if (overlap(start, end, r.start(), r.end())) {
                     return Result.fail(ErrorCode.CONFLICT, "overlap");
@@ -52,6 +52,33 @@ public final class ReservationService {
             }
         }
         return Result.fail(ErrorCode.NOT_FOUND, "reservationId=" + reservationId);
+    }
+
+    // --- NOUVELLES MÉTHODES TP3 ---
+
+    public List<Reservation> findByUser(String user) {
+        return reservations.stream()
+                .filter(r -> r.user().equalsIgnoreCase(user))
+                .collect(Collectors.toList());
+    }
+
+    public List<Reservation> findByResource(long resourceId) {
+        return reservations.stream()
+                .filter(r -> r.resourceId() == resourceId)
+                .collect(Collectors.toList());
+    }
+
+    public void replaceReservations(List<Reservation> loadedReservations) {
+        reservations.clear();
+        reservations.addAll(loadedReservations);
+        
+        long maxId = 0;
+        for (Reservation r : reservations) {
+            if (r.id() > maxId) {
+                maxId = r.id();
+            }
+        }
+        nextId = maxId + 1; // Recalcul de l'ID pour les prochaines réservations
     }
 
     static boolean overlap(LocalDateTime s1, LocalDateTime e1, LocalDateTime s2, LocalDateTime e2) {
