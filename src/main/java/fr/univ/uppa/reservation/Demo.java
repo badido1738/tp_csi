@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Demo {
     public static void main(String[] args) {
-        ReservationService svc = new ReservationService();
+        ReservationService svc = new ReservationService(null);
         var r1 = svc.createReservation(null, 1L, LocalDateTime.of(2026, 2, 10, 10, 0),
                 LocalDateTime.of(2026, 2, 10, 11, 0));
         System.out.println(r1);
